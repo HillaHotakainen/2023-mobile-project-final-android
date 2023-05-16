@@ -1,5 +1,6 @@
 package com.example.final_project
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
@@ -43,7 +44,9 @@ class MainActivity : AppCompatActivity() {
                     persons.add(name)
                 }
 
-                adapter.addAll(persons)
+                val intent = Intent(this, FetchAllUsers::class.java)
+                intent.putStringArrayListExtra("personsList", ArrayList(persons))
+                startActivity(intent)
             },
             { error ->
                 error.printStackTrace()
