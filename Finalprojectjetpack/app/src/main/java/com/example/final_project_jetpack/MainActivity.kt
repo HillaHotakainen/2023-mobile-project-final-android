@@ -1,6 +1,7 @@
 package com.example.final_project_jetpack
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.final_project_jetpack.ui.theme.FinalprojectjetpackTheme
@@ -121,6 +124,7 @@ fun UserList(users: List<MainActivity.User>) {
 @Composable
 fun SearchBar(onSearch: (String) -> Unit) {
     var query by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
 
     OutlinedTextField(
         value = query,
@@ -131,6 +135,7 @@ fun SearchBar(onSearch: (String) -> Unit) {
             onSearch = {
                 onSearch(query)
                 query = ""
+                focusManager.clearFocus()
             }
         ),
         modifier = Modifier.fillMaxWidth()
