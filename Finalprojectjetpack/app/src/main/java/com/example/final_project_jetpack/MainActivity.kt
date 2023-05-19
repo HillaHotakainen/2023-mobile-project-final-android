@@ -1,23 +1,24 @@
 package com.example.final_project_jetpack
 
 import android.os.Bundle
-import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.final_project_jetpack.ui.theme.FinalprojectjetpackTheme
 import org.json.JSONArray
 import org.json.JSONObject
@@ -45,16 +46,12 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    val filteredUsers = filterUsers(users, searchUsers)
                     Column {
                         SearchBar(onSearch = { query -> searchUsers = query })
-
-                        LaunchedEffect(Unit) {
-                            fetchUsers()
-                        }
                         if (isLoading) {
                             CircularProgressIndicator()
                         } else {
+                            val filteredUsers = filterUsers(users, searchUsers)
                             UserList(users = filteredUsers)
                         }
                     }
@@ -68,22 +65,21 @@ class MainActivity : ComponentActivity() {
         val requestQueue = Volley.newRequestQueue(this)
 
         val jsonObjectRequest = JsonObjectRequest(
-            Request.Method.GET, url, null,
-            { response ->
-                val usersJsonArray: JSONArray = response.getJSONArray("users")
-                for (i in 0 until usersJsonArray.length()) {
-                    val userJsonObject: JSONObject = usersJsonArray.getJSONObject(i)
+            Request.Method.GET, url, null, { response ->
+                val usersJArray: JSONArray = response.getJSONArray("users")
+                for (i in 0 until usersJArray.length()) {
+                    val userJObject: JSONObject = usersJArray.getJSONObject(i)
                     val user = User(
-                        firstName = userJsonObject.getString("firstName"),
-                        lastName = userJsonObject.getString("lastName"),
+                        firstName = userJObject.getString("firstName"),
+                        lastName = userJObject.getString("lastName"),
                     )
                     users.add(user)
                 }
                 isLoading = false
             },
             { error ->
-                isLoading = false
-            }
+               isLoading = false
+           }
         )
 
         requestQueue.add(jsonObjectRequest)
@@ -94,8 +90,8 @@ class MainActivity : ComponentActivity() {
             users
         } else {
             users.filter { user ->
-                user.firstName.contains(query, ignoreCase = true) ||
-                        user.lastName.contains(query, ignoreCase = true)
+                user.firstName.startsWith(query, ignoreCase = true) ||
+                        user.lastName.startsWith(query, ignoreCase = true)
             }
         }
     }
@@ -106,38 +102,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-@Composable
-fun UserList(users: List<MainActivity.User>) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colors.background
-    ) {
-        LazyColumn {
-            items(users) { user ->
-                Text(text = "${user.firstName} ${user.lastName}")
-            }
-        }
-    }
-}
-
-@Composable
-fun SearchBar(onSearch: (String) -> Unit) {
-    var query by remember { mutableStateOf("") }
-    val focusManager = LocalFocusManager.current
-
-    OutlinedTextField(
-        value = query,
-        onValueChange = { query = it },
-        label = { Text("Search Users") },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(
-            onSearch = {
-                onSearch(query)
-                query = ""
-                focusManager.clearFocus()
-            }
-        ),
-        modifier = Modifier.fillMaxWidth()
-    )
-}
