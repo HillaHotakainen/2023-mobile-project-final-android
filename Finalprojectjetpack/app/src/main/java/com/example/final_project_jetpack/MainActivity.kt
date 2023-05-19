@@ -13,6 +13,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
@@ -23,19 +24,19 @@ import com.example.final_project_jetpack.ui.theme.FinalprojectjetpackTheme
 import org.json.JSONArray
 import org.json.JSONObject
 import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 
 class MainActivity : ComponentActivity() {
-    private val users = mutableListOf<User>()
+    private val users = mutableStateListOf<User>()
     private var searchUsers by mutableStateOf("")
+    private var isLoading by mutableStateOf(true)
+    private var showDialog by mutableStateOf(false)
 
     data class User(
         val firstName: String,
         val lastName: String,
     )
-    private var isLoading by mutableStateOf(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,11 +49,28 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Column {
                         SearchBar(onSearch = { query -> searchUsers = query })
-                        if (isLoading) {
-                            CircularProgressIndicator()
-                        } else {
-                            val filteredUsers = filterUsers(users, searchUsers)
-                            UserList(users = filteredUsers)
+                        Button(
+                            onClick = { showDialog = true }
+                        ) {
+                            Text(text = "Add User")
+                        }
+                        if (showDialog) {
+                            AddUserDialog(
+                                onAddUser = { user ->
+                                    addUser(user)
+                                    showDialog = false
+                                },
+                                onCancel = { showDialog = false }
+                            )
+                        }
+                        Box {
+                            if (isLoading) {
+                                CircularProgressIndicator()
+                            } else {
+                                val filteredUsers =
+                                    filterUsers(users,searchUsers)
+                                UserList(users = filteredUsers)
+                            }
                         }
                     }
                 }
@@ -78,8 +96,35 @@ class MainActivity : ComponentActivity() {
                 isLoading = false
             },
             { error ->
-               isLoading = false
-           }
+                isLoading = false
+            }
+        )
+
+        requestQueue.add(jsonObjectRequest)
+    }
+
+    private fun addUser(user: MainActivity.User) {
+        val url = "https://dummyjson.com/users/add"
+        val requestQueue = Volley.newRequestQueue(this)
+
+        val jsonObject = JSONObject()
+        jsonObject.put("firstName", user.firstName)
+        jsonObject.put("lastName", user.lastName)
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.POST, url, jsonObject,
+            { response ->
+                val newUser = MainActivity.User(
+                    firstName = response.getString("firstName"),
+                    lastName = response.getString("lastName")
+                )
+                users.add(newUser)
+                showDialog = false
+            },
+            { error ->
+                // Handle error
+                showDialog = false
+            }
         )
 
         requestQueue.add(jsonObjectRequest)
@@ -101,4 +146,3 @@ class MainActivity : ComponentActivity() {
         users.clear()
     }
 }
-
