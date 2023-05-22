@@ -34,6 +34,7 @@ class MainActivity : ComponentActivity() {
     private var showDialog by mutableStateOf(false)
 
     data class User(
+        val id : String,
         val firstName: String,
         val lastName: String,
     )
@@ -69,7 +70,17 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 val filteredUsers =
                                     filterUsers(users,searchUsers)
-                                UserList(users = filteredUsers)
+                                UserList(
+                                    users = filteredUsers,
+                                    removeUser = { user -> removeUser(user)},
+                                    updateUser = {
+                                            user,
+                                            newFirstName,
+                                            newLastName ->
+                                            updateUser(
+                                                user,
+                                                newFirstName,
+                                                newLastName)})
                             }
                         }
                     }
@@ -88,6 +99,7 @@ class MainActivity : ComponentActivity() {
                 for (i in 0 until usersJArray.length()) {
                     val userJObject: JSONObject = usersJArray.getJSONObject(i)
                     val user = User(
+                        id = userJObject.getString("id"),
                         firstName = userJObject.getString("firstName"),
                         lastName = userJObject.getString("lastName"),
                     )
@@ -103,18 +115,20 @@ class MainActivity : ComponentActivity() {
         requestQueue.add(jsonObjectRequest)
     }
 
-    private fun addUser(user: MainActivity.User) {
+    private fun addUser(user: User) {
         val url = "https://dummyjson.com/users/add"
         val requestQueue = Volley.newRequestQueue(this)
 
         val jsonObject = JSONObject()
+        jsonObject.put("id", (users.size + 1).toString())
         jsonObject.put("firstName", user.firstName)
         jsonObject.put("lastName", user.lastName)
 
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.POST, url, jsonObject,
             { response ->
-                val newUser = MainActivity.User(
+                val newUser = User(
+                    id = response.getString("id"),
                     firstName = response.getString("firstName"),
                     lastName = response.getString("lastName")
                 )
@@ -139,6 +153,20 @@ class MainActivity : ComponentActivity() {
                         user.lastName.startsWith(query, ignoreCase = true)
             }
         }
+    }
+
+    private fun removeUser(user: User) {
+        users.remove(user)
+    }
+
+    private fun updateUser(
+        user: User,
+        newFirstName: String,
+        newLastName: String) {
+        val updatedUser = user.copy(
+            firstName = newFirstName,
+            lastName = newLastName)
+        users[users.indexOf(user)] = updatedUser
     }
 
     override fun onDestroy() {

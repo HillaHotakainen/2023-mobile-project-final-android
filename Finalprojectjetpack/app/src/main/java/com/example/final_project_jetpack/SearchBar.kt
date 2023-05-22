@@ -7,6 +7,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 
@@ -17,16 +18,21 @@ fun SearchBar(onSearch: (String) -> Unit) {
 
     OutlinedTextField(
         value = query,
-        onValueChange = { query = it },
+        onValueChange = { query = it
+                        onSearch(query)},
         label = { Text("Search Users") },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(
             onSearch = {
-                onSearch(query)
-                query = ""
                 focusManager.clearFocus()
             }
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged { focusState ->
+                if (!focusState.isFocused)
+                {
+                    focusManager.clearFocus()}
+            }
     )
 }

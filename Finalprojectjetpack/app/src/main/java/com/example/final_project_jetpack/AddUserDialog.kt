@@ -23,8 +23,8 @@ fun AddUserDialog(
     Dialog(
         onDismissRequest = onCancel,
         properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
         )
     ) {
         Box(
@@ -57,7 +57,10 @@ fun AddUserDialog(
                     Button(
                         onClick = {
                             if (firstName.isNotBlank() && lastName.isNotBlank()) {
-                                val newUser = MainActivity.User(firstName = firstName, lastName = lastName)
+                                val newUser = MainActivity.User(
+                                    id = "",
+                                    firstName = firstName,
+                                    lastName = lastName)
                                 onAddUser(newUser)
                             }
                         }
@@ -74,6 +77,3 @@ fun AddUserDialog(
         }
     }
 }
-
-
-
