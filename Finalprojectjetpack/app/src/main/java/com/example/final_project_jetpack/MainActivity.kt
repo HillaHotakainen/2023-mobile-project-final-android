@@ -160,7 +160,30 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun removeUser(user: User) {
-        users.remove(user)
+        if (user.id.toInt() > 100){
+            users.remove(user)
+        } else {
+            val url = "https://dummyjson.com/users/${user.id}"
+            val requestQueue = Volley.newRequestQueue(this)
+
+            val jsonObjectRequest = JsonObjectRequest(
+                Request.Method.DELETE, url, null,
+                { response ->
+                    val deletedUser = User(
+                        id = response.getString("id"),
+                        firstName = response.getString("firstName"),
+                        lastName = response.getString("lastName")
+                    )
+                    users.remove(deletedUser)
+                },
+                { error ->
+                    val errorMessage = "Error: ${error.message}"
+                    Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+                }
+            )
+            requestQueue.add(jsonObjectRequest)
+        }
+
     }
 
     private fun updateUser(
