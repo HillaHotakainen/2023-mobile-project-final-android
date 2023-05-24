@@ -174,7 +174,7 @@ class MainActivity : ComponentActivity() {
                         firstName = response.getString("firstName"),
                         lastName = response.getString("lastName")
                     )
-                    users.remove(deletedUser)
+                    users.remove(user)
                 },
                 { error ->
                     val errorMessage = "Error: ${error.message}"

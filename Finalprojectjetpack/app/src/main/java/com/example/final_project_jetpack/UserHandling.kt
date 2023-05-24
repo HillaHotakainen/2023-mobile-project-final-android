@@ -110,9 +110,16 @@ fun UserClick(
                         modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
                     ) { Button(
                         onClick = {
-                            updateDialog = false
-                            options = false
-                            updateUser(user, changeFirstName, changeLastName)
+                            if (changeFirstName.isNotBlank()&&
+                                changeLastName.isNotBlank()){
+
+                                updateDialog = false
+                                options = false
+                                updateUser(
+                                    user,
+                                    changeFirstName,
+                                    changeLastName)
+                            }
                         }
                     ) {
                         Text(text = "Update")
