@@ -1,5 +1,6 @@
 package com.example.final_project_jetpack
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,10 +17,15 @@ fun SearchBar(onSearch: (String) -> Unit) {
     var query by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
+    BackHandler(enabled = true) {
+        focusManager.clearFocus()
+    }
+
     OutlinedTextField(
         value = query,
         onValueChange = { query = it
-                        onSearch(query)},
+                            onSearch(query)
+                        },
         label = { Text("Search Users") },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(

@@ -1,6 +1,7 @@
 package com.example.final_project_jetpack
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
@@ -109,6 +110,8 @@ class MainActivity : ComponentActivity() {
             },
             { error ->
                 isLoading = false
+                val errorMessage = "Error: ${error.message}"
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
             }
         )
 
@@ -136,8 +139,9 @@ class MainActivity : ComponentActivity() {
                 showDialog = false
             },
             { error ->
-                // Handle error
                 showDialog = false
+                val errorMessage = "Error: ${error.message}"
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
             }
         )
 
@@ -163,10 +167,37 @@ class MainActivity : ComponentActivity() {
         user: User,
         newFirstName: String,
         newLastName: String) {
-        val updatedUser = user.copy(
-            firstName = newFirstName,
-            lastName = newLastName)
-        users[users.indexOf(user)] = updatedUser
+        if (user.id.toInt() > 100) {
+            val updatedUser = user.copy(
+                firstName = newFirstName,
+                lastName = newLastName
+            )
+            users[users.indexOf(user)] = updatedUser
+        } else {
+            val url = "https://dummyjson.com/users/${user.id}"
+            val requestQueue = Volley.newRequestQueue(this)
+
+            val jsonObject = JSONObject()
+            jsonObject.put("firstName", newFirstName)
+            jsonObject.put("lastName", newLastName)
+
+            val jsonObjectRequest = JsonObjectRequest(
+                Request.Method.PATCH, url, jsonObject,
+                { response ->
+                    val updatedUser = User(
+                        id = response.getString("id"),
+                        firstName = response.getString("firstName"),
+                        lastName = response.getString("lastName")
+                    )
+                    users[users.indexOf(user)] = updatedUser
+                },
+                { error ->
+                    val errorMessage = "Error: ${error.message}"
+                    Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+                }
+            )
+            requestQueue.add(jsonObjectRequest)
+        }
     }
 
     override fun onDestroy() {
