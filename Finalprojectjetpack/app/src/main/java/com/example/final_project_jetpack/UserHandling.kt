@@ -120,7 +120,8 @@ fun UserClick(
                                     changeFirstName,
                                     changeLastName)
                             }
-                        }
+                        },
+                        modifier = Modifier.padding(6.dp)
                     ) {
                         Text(text = "Update")
                     }
@@ -128,7 +129,8 @@ fun UserClick(
                             onClick = {
                                 updateDialog = false
                                 options = false
-                            }
+                            },
+                            modifier = Modifier.padding(6.dp)
                         ) {
                             Text(text = "Cancel")
                         }

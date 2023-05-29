@@ -63,12 +63,14 @@ fun AddUserDialog(
                                     lastName = lastName)
                                 onAddUser(newUser)
                             }
-                        }
+                        },
+                        modifier = Modifier.padding(6.dp)
                     ) {
                         Text(text = "Add")
                     }
                     Button(
-                        onClick = onCancel
+                        onClick = onCancel,
+                        modifier = Modifier.padding(6.dp)
                     ) {
                         Text(text = "Cancel")
                     }
