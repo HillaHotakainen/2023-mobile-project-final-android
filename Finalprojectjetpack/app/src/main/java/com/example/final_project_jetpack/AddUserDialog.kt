@@ -10,11 +10,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
-
+/**
+ * Composable for adding a new user.
+ *
+ * @param addUser Callback when new user is added.
+ * @param onCancel Callback when adding new user is cancelled.
+ */
 
 @Composable
 fun AddUserDialog(
-    onAddUser: (MainActivity.User) -> Unit,
+    addUser: (MainActivity.User) -> Unit,
     onCancel: () -> Unit
 ) {
     var firstName by remember { mutableStateOf("") }
@@ -56,12 +61,14 @@ fun AddUserDialog(
                 ) {
                     Button(
                         onClick = {
-                            if (firstName.isNotBlank() && lastName.isNotBlank()) {
+                            //Stops user from adding empty string as user
+                            if (firstName.isNotBlank()&&lastName.isNotBlank()) {
                                 val newUser = MainActivity.User(
                                     id = "",
                                     firstName = firstName,
                                     lastName = lastName)
-                                onAddUser(newUser)
+                                //callback of addUser with new user
+                                addUser(newUser)
                             }
                         },
                         modifier = Modifier.padding(6.dp)

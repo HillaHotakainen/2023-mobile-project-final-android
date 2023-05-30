@@ -28,11 +28,24 @@ import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 
+/**
+ * The main activity that displays a user list and allows adding,
+ * searching, updating, and removing users.
+ */
+
 class MainActivity : ComponentActivity() {
     private val users = mutableStateListOf<User>()
     private var searchUsers by mutableStateOf("")
     private var isLoading by mutableStateOf(true)
     private var showDialog by mutableStateOf(false)
+
+    /**
+     * Data class representing a user.
+     *
+     * @property id The ID of the user.
+     * @property firstName The first name of the user.
+     * @property lastName The last name of the user.
+     */
 
     data class User(
         val id : String,
@@ -42,6 +55,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //fetches users from backend
         fetchUsers()
         setContent {
             FinalprojectjetpackTheme {
@@ -58,7 +72,7 @@ class MainActivity : ComponentActivity() {
                         }
                         if (showDialog) {
                             AddUserDialog(
-                                onAddUser = { user ->
+                                addUser = { user ->
                                     addUser(user)
                                     showDialog = false
                                 },
@@ -67,9 +81,11 @@ class MainActivity : ComponentActivity() {
                         }
                         Box {
                             if (isLoading) {
+                                // Display a loading circle while loading
                                 CircularProgressIndicator()
                             } else {
                                 val filteredUsers =
+                                    // Search users based on the search query
                                     filterUsers(users,searchUsers)
                                 UserList(
                                     users = filteredUsers,
@@ -90,6 +106,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Fetches users from the server using Volley.
+     */
+
     private fun fetchUsers() {
         val url = "https://dummyjson.com/users"
         val requestQueue = Volley.newRequestQueue(this)
@@ -104,11 +124,14 @@ class MainActivity : ComponentActivity() {
                         firstName = userJObject.getString("firstName"),
                         lastName = userJObject.getString("lastName"),
                     )
+                    //adds user to the mutable list
                     users.add(user)
                 }
+                //stops loading symbol
                 isLoading = false
             },
             { error ->
+                //stops loading symbol
                 isLoading = false
                 val errorMessage = "Error: ${error.message}"
                 Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
@@ -117,6 +140,12 @@ class MainActivity : ComponentActivity() {
 
         requestQueue.add(jsonObjectRequest)
     }
+
+    /**
+     * Adds a new user.
+     *
+     * @param user The new user to add.
+     */
 
     private fun addUser(user: User) {
         val url = "https://dummyjson.com/users/add"
@@ -148,8 +177,17 @@ class MainActivity : ComponentActivity() {
         requestQueue.add(jsonObjectRequest)
     }
 
+    /**
+     * Filters the list of users based on the search query.
+     *
+     * @param users The list of users to search from.
+     * @param query The search query.
+     * @return The filtered list of users.
+     */
+
     private fun filterUsers(users: List<User>, query: String): List<User> {
         return if (query.isEmpty()) {
+            //returns all users if no search is done
             users
         } else {
             users.filter { user ->
@@ -159,21 +197,24 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Removes a user.
+     *
+     * @param user The user to remove.
+     */
+
     private fun removeUser(user: User) {
+        //checks if user is from backend
         if (user.id.toInt() > 100){
             users.remove(user)
         } else {
+            //if user is from backend, does delete request
             val url = "https://dummyjson.com/users/${user.id}"
             val requestQueue = Volley.newRequestQueue(this)
 
             val jsonObjectRequest = JsonObjectRequest(
                 Request.Method.DELETE, url, null,
                 { response ->
-                    val deletedUser = User(
-                        id = response.getString("id"),
-                        firstName = response.getString("firstName"),
-                        lastName = response.getString("lastName")
-                    )
                     users.remove(user)
                 },
                 { error ->
@@ -186,17 +227,28 @@ class MainActivity : ComponentActivity() {
 
     }
 
+    /**
+     * Updates a user's first and last name.
+     *
+     * @param user The user to update.
+     * @param newFirstName The new first name.
+     * @param newLastName The new last name.
+     */
+
     private fun updateUser(
         user: User,
         newFirstName: String,
         newLastName: String) {
+        //checks if user is from backend
         if (user.id.toInt() > 100) {
             val updatedUser = user.copy(
                 firstName = newFirstName,
                 lastName = newLastName
             )
+            //updates one user
             users[users.indexOf(user)] = updatedUser
         } else {
+            //if user is from backend, does patch request
             val url = "https://dummyjson.com/users/${user.id}"
             val requestQueue = Volley.newRequestQueue(this)
 
@@ -212,6 +264,7 @@ class MainActivity : ComponentActivity() {
                         firstName = response.getString("firstName"),
                         lastName = response.getString("lastName")
                     )
+                    //updates user to what was returned from backend
                     users[users.indexOf(user)] = updatedUser
                 },
                 { error ->

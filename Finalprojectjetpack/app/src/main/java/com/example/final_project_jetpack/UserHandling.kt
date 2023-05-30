@@ -16,6 +16,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
+/**
+ * Composable that displays a list of users.
+ *
+ * @param users The list of users to display.
+ * @param removeUser The callback function invoked when a user is to be removed.
+ * @param updateUser The callback function invoked when a user is to be updated.
+ */
+
 @Composable
 fun UserList(
     users: List<MainActivity.User>,
@@ -35,6 +43,14 @@ fun UserList(
         }
     }
 }
+
+/**
+ * Composable that displays a user item and handles user interactions.
+ *
+ * @param user The user to display.
+ * @param removeUser The callback when user is removed.
+ * @param updateUser The callback when user is updated.
+ */
 
 @Composable
 fun UserClick(
@@ -65,12 +81,16 @@ fun UserClick(
                 Icon(Icons.Default.MoreVert, contentDescription = "Options")
             }
             DropdownMenu(
+                //dropdownmenu for updating and deleting user
+                //is shown if options icon is pressed
                 expanded = options,
                 onDismissRequest = { options = false }
             ) {
+                //opens update dialog on press
                 DropdownMenuItem(onClick = { updateDialog = true }) {
                     Text(text = "Update User")
                 }
+                //opens delete dialog on press
                 DropdownMenuItem(onClick = { deleteDialog = true }) {
                     Text(text = "Remove User")
                 }
@@ -92,6 +112,7 @@ fun UserClick(
             ) {
                 Column {
                     Text(
+                        //shows the name of currently opened user
                         text = "Updating ${user.firstName} ${user.lastName}",
                         style = MaterialTheme.typography.h6,
                         modifier = Modifier.padding(bottom = 16.dp)
@@ -110,11 +131,13 @@ fun UserClick(
                         modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
                     ) { Button(
                         onClick = {
-                            if (changeFirstName.isNotBlank()&&
-                                changeLastName.isNotBlank()){
+                            //checks that name is not empty
+                            if (changeFirstName.isNotBlank() &&
+                                changeLastName.isNotBlank()) {
 
                                 updateDialog = false
                                 options = false
+                                //updateUser callback
                                 updateUser(
                                     user,
                                     changeFirstName,
@@ -158,13 +181,16 @@ fun UserClick(
                         style = MaterialTheme.typography.h6,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
+                    //shows name of user you are deleting
                     Text(text = "${user.firstName} ${user.lastName}")
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
                     ){ Button(
+                        //callback removeUser when pressed yes
                         onClick = { deleteDialog = false
                                     options = false
-                                    removeUser(user)}
+                                    removeUser(user)},
+                        modifier = Modifier.padding(6.dp)
                     ) {
                         Text(text = "Yes")
                     }
@@ -172,7 +198,8 @@ fun UserClick(
                             onClick = {
                                 deleteDialog = false
                                 options = false
-                            }
+                            },
+                            modifier = Modifier.padding(6.dp)
                         ) {
                             Text(text = "Cancel")
                         }
