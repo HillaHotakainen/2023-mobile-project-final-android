@@ -1,6 +1,6 @@
 # 2023-mobile-project-final-android
 
-Mobile app project from spring 2022
+Mobile app project from spring 2023
 
 App uses dummy.json backend for fetches, backend can not be modified.  
 Changes in users are simulated, every time app is closed all the changes reset.
