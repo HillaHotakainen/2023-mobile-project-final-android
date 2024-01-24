@@ -14,11 +14,8 @@ Changes in users are simulated, every time app is closed all the changes reset.
 -Removing a user  
 
 ## Dokumetation:
-Code has Dokka style dokumentation in it, but I was unable to make an actual html file out of it.  
+Code has Dokka style dokumentation in it.  
 
-## Screencast:
-Screencast of project here:  
-https://youtu.be/jWP5W658TD0
 
 ### Made by:
 Hilla Hotakainen  
